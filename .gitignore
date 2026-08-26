@@ -1,0 +1,29 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# Large data / outputs (not meant to be tracked in this repo)
+*.fna
+*.faa
+*.ffn
+*.gff
+*.gbk
+*.fastq.gz
+*.bam
+*.sam
+outputs/
+grouped/
+pangenome/
+antismash_out/
+abricate_out/
+ani_out/
+ani_analysis/

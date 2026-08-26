@@ -1,0 +1,15 @@
+name: compgenomics
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - fastani=1.34
+  - pandas
+  - scipy
+  - matplotlib
+  - numpy
+  - openpyxl
+  - scikit-learn
+  - fasttree
+  - biopython
+  - pip

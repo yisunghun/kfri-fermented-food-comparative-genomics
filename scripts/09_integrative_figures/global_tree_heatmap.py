@@ -79,21 +79,35 @@ def main():
     Z = linkage(condensed, method="average")
 
     n = len(ani.index)
-    fig = plt.figure(figsize=(18, max(10, n * 0.13)))
-    gs = fig.add_gridspec(1, 2, width_ratios=[2.5, 1.5], wspace=0.02)
+    fig = plt.figure(figsize=(11, max(8, n * 0.16)), constrained_layout=True)
+    gs = fig.add_gridspec(1, 2, width_ratios=[2.2, 1.0])
     ax_tree = fig.add_subplot(gs[0, 0])
     ax_heat = fig.add_subplot(gs[0, 1])
 
     dendro = dendrogram(Z, labels=ani.index.tolist(), orientation="left", ax=ax_tree,
-                         leaf_font_size=5, no_labels=False)
+                         leaf_font_size=7, no_labels=False)
     leaf_order = dendro["ivl"]
     ax_tree.set_title("ANI-based hierarchical clustering (all genomes)")
     ax_tree.set_xlabel("Distance (100 - ANI)")
 
-    # colour tip labels by functional group
-    for tick_label in ax_tree.get_ymajorticklabels():
-        sid = tick_label.get_text()
-        fg = master.loc[sid, "functional_group"] if sid in master.index else "Unresolved"
+    # 히트맵을 라벨에 더 가깝게 당기기 (constrained_layout 기본 여백이 다소 넓어서 조정)
+    fig.get_layout_engine().set(wspace=0.03, w_pad=0.01)
+
+    # colour + shorten tip labels by functional group
+    # 주의: get_ymajorticklabels()로 얻은 Text 객체에 .set_text()만 하면
+    # matplotlib이 draw(저장) 시점에 라벨을 재생성하면서 원래 값으로 되돌아가는
+    # 문제가 있어, set_yticklabels()로 라벨 리스트 자체를 통째로 교체한다.
+    old_labels = [t.get_text() for t in ax_tree.get_ymajorticklabels()]
+    short_labels = []
+    for sid in old_labels:
+        if sid in master.index and "short_id" in master.columns and pd.notna(master.loc[sid, "short_id"]):
+            short_labels.append(str(master.loc[sid, "short_id"]))
+        else:
+            short_labels.append(sid)
+    ax_tree.set_yticklabels(short_labels, fontsize=7)
+
+    for old_sid, tick_label in zip(old_labels, ax_tree.get_ymajorticklabels()):
+        fg = master.loc[old_sid, "functional_group"] if old_sid in master.index else "Unresolved"
         tick_label.set_color(GROUP_COLORS.get(fg, "black"))
 
     # ---------- assemble numeric tracks ----------
@@ -127,9 +141,8 @@ def main():
     ax_heat.set_title("Screening summary")
 
     legend_elems = [Patch(facecolor=c, label=g) for g, c in GROUP_COLORS.items()]
-    fig.legend(handles=legend_elems, loc="upper right", title="Functional group", fontsize=9)
+    fig.legend(handles=legend_elems, loc="outside upper right", title="Functional group", fontsize=9)
 
-    fig.tight_layout()
     out_path = os.path.join(args.outdir, "global_tree_screening_heatmap.pdf")
     fig.savefig(out_path)
     print(f"Combined figure saved: {out_path}")

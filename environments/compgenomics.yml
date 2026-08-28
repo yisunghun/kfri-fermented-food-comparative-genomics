@@ -13,3 +13,5 @@ dependencies:
   - fasttree
   - biopython
   - pip
+  - pip:
+      - networkx

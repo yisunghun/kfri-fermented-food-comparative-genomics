@@ -1,22 +1,28 @@
 #!/usr/bin/env python3
 """
-global_tree_heatmap.py
+global_tree_heatmap.py (Fig. 5 단순화 개정판)
 
-Builds the final integrative figure: ANI-based hierarchical clustering tree
-for all genomes, with an adjacent multi-track heatmap showing:
-  - functional_group (categorical: LAB / Bacillus_group / Other_Environmental / Unresolved)
-  - antiSMASH total BGC count
-  - CARD gene count (antibiotic resistance burden)
-  - VFDB gene count (virulence factor burden)
+투고 전 자체 검토에서, 본문 Fig. 5에 220개 isolate label이 전부 들어가서
+본문 크기에서는 사실상 해석 불가능하다는 지적을 받아 개조했다.
 
-Usage:
+- 기본(라벨 숨김) 모드: guild 색상 tick만 남기고 텍스트 라벨은 전부 제거,
+  --highlight-sample로 지정한 시료(K. pneumoniae 이상치)만 굵게 표시.
+  -> 본문 Fig. 5용.
+- --show-all-labels 플래그를 주면 기존처럼 220개 라벨을 전부 표시.
+  -> Supplementary Fig. S1(4-panel 분할)용, 기존 동작과 동일.
+
+Usage (본문 Fig. 5, 단순화):
   python3 global_tree_heatmap.py \
       --ani-matrix /mnt/f/WGS_Consolidated/ani_analysis/ani_matrix.csv \
       --master /mnt/f/WGS_Consolidated/master_table_qc.tsv \
       --antismash-summary /mnt/f/WGS_Consolidated/antismash_analysis/antismash_bgc_summary.tsv \
       --card-summary /mnt/f/WGS_Consolidated/abricate_out/card_summary.tsv \
       --vfdb-summary /mnt/f/WGS_Consolidated/abricate_out/vfdb_summary.tsv \
+      --highlight-sample HN00179262_F4055 \
       --outdir /mnt/f/WGS_Consolidated/global_summary
+
+Usage (Supplementary Fig. S1, 전체 라벨):
+  (위 명령에 --show-all-labels 추가, --highlight-sample 생략 가능)
 """
 import argparse
 import os
@@ -58,6 +64,12 @@ def main():
     ap.add_argument("--card-summary", required=False)
     ap.add_argument("--vfdb-summary", required=False)
     ap.add_argument("--outdir", required=True)
+    ap.add_argument("--show-all-labels", action="store_true",
+                     help="220개 시료 라벨을 전부 표시 (Supplementary Fig. S1용). "
+                          "기본값(False)이면 본문 Fig. 5용으로 라벨을 숨긴다.")
+    ap.add_argument("--highlight-sample", default=None,
+                     help="라벨을 숨기는 모드에서 예외적으로 굵게 강조 표시할 "
+                          "단일 시료 (예: K. pneumoniae 이상치 sample_id)")
     args = ap.parse_args()
 
     import matplotlib
@@ -71,7 +83,6 @@ def main():
     master = pd.read_csv(args.master, sep="\t").set_index("sample_id")
     master["functional_group"] = master["genus_final"].apply(functional_group)
 
-    # ---------- build dendrogram (reuse ANI-distance approach) ----------
     dist_arr = (100.0 - ani.fillna(70.0)).to_numpy(copy=True)
     dist_arr = np.clip(dist_arr, 0.0, None)
     np.fill_diagonal(dist_arr, 0.0)
@@ -79,38 +90,59 @@ def main():
     Z = linkage(condensed, method="average")
 
     n = len(ani.index)
-    fig = plt.figure(figsize=(11, max(8, n * 0.16)), constrained_layout=True)
-    gs = fig.add_gridspec(1, 2, width_ratios=[2.2, 1.0])
+    fig_height = max(8, n * 0.16) if args.show_all_labels else 11.0
+    fig = plt.figure(figsize=(9, fig_height), constrained_layout=True)
+    gs = fig.add_gridspec(1, 2, width_ratios=[2.0, 1.0])
     ax_tree = fig.add_subplot(gs[0, 0])
     ax_heat = fig.add_subplot(gs[0, 1])
 
     dendro = dendrogram(Z, labels=ani.index.tolist(), orientation="left", ax=ax_tree,
-                         leaf_font_size=7, no_labels=False)
+                         leaf_font_size=7, no_labels=not args.show_all_labels)
     leaf_order = dendro["ivl"]
-    ax_tree.set_title("ANI-based hierarchical clustering (all genomes)")
+    ax_tree.set_title("ANI-based hierarchical clustering (all 220 genomes;\nnot a phylogenetic tree)")
     ax_tree.set_xlabel("Distance (100 - ANI)")
 
-    # 히트맵을 라벨에 더 가깝게 당기기 (constrained_layout 기본 여백이 다소 넓어서 조정)
     fig.get_layout_engine().set(wspace=0.03, w_pad=0.01)
 
-    # colour + shorten tip labels by functional group
-    # 주의: get_ymajorticklabels()로 얻은 Text 객체에 .set_text()만 하면
-    # matplotlib이 draw(저장) 시점에 라벨을 재생성하면서 원래 값으로 되돌아가는
-    # 문제가 있어, set_yticklabels()로 라벨 리스트 자체를 통째로 교체한다.
-    old_labels = [t.get_text() for t in ax_tree.get_ymajorticklabels()]
-    short_labels = []
-    for sid in old_labels:
-        if sid in master.index and "short_id" in master.columns and pd.notna(master.loc[sid, "short_id"]):
-            short_labels.append(str(master.loc[sid, "short_id"]))
-        else:
-            short_labels.append(sid)
-    ax_tree.set_yticklabels(short_labels, fontsize=7)
+    if args.show_all_labels:
+        old_labels = [t.get_text() for t in ax_tree.get_ymajorticklabels()]
+        short_labels = []
+        for sid in old_labels:
+            if sid in master.index and "short_id" in master.columns and pd.notna(master.loc[sid, "short_id"]):
+                short_labels.append(str(master.loc[sid, "short_id"]))
+            else:
+                short_labels.append(sid)
+        ax_tree.set_yticklabels(short_labels, fontsize=7)
+        for old_sid, tick_label in zip(old_labels, ax_tree.get_ymajorticklabels()):
+            fg = master.loc[old_sid, "functional_group"] if old_sid in master.index else "Unresolved"
+            tick_label.set_color(GROUP_COLORS.get(fg, "black"))
+    else:
+        ax_tree.set_yticks(np.arange(5, n * 10 + 5, 10))
+        tick_colors = [GROUP_COLORS.get(
+            master.loc[s, "functional_group"] if s in master.index else "Unresolved", "black"
+        ) for s in leaf_order]
+        ax_tree.set_yticklabels([""] * n)
+        for tick, color in zip(ax_tree.yaxis.get_major_ticks(), tick_colors):
+            tick.tick1line.set_markersize(4)
+            tick.tick1line.set_markeredgewidth(1.5)
+            tick.tick1line.set_color(color)
 
-    for old_sid, tick_label in zip(old_labels, ax_tree.get_ymajorticklabels()):
-        fg = master.loc[old_sid, "functional_group"] if old_sid in master.index else "Unresolved"
-        tick_label.set_color(GROUP_COLORS.get(fg, "black"))
+        if args.highlight_sample and args.highlight_sample in leaf_order:
+            idx = leaf_order.index(args.highlight_sample)
+            y_pos = idx * 10 + 5
+            display_name = (master.loc[args.highlight_sample, "short_id"]
+                             if args.highlight_sample in master.index
+                             and "short_id" in master.columns
+                             and pd.notna(master.loc[args.highlight_sample, "short_id"])
+                             else args.highlight_sample)
+            ax_tree.annotate(
+                f"{display_name}\n(K. pneumoniae outlier)",
+                xy=(0, y_pos), xytext=(15, y_pos),
+                textcoords="data", fontsize=8, fontweight="bold", color="firebrick",
+                va="center", ha="left", clip_on=False, annotation_clip=False,
+                arrowprops=dict(arrowstyle="-", color="firebrick", lw=1.2),
+            )
 
-    # ---------- assemble numeric tracks ----------
     tracks = pd.DataFrame(index=leaf_order)
     tracks["functional_group_code"] = [
         list(GROUP_COLORS.keys()).index(master.loc[s, "functional_group"])
@@ -128,7 +160,6 @@ def main():
             s = s.set_index("sample_id")
             tracks[label] = s.reindex(leaf_order)["NUM_FOUND"]
 
-    # ---------- plot: categorical strip for functional_group + numeric heatmap for the rest ----------
     numeric_cols = [c for c in tracks.columns if c != "functional_group_code"]
     if numeric_cols:
         norm_data = tracks[numeric_cols].apply(lambda col: (col - col.min()) / (col.max() - col.min() + 1e-9))
@@ -137,17 +168,24 @@ def main():
         ax_heat.set_xticks(np.arange(len(numeric_cols)) + 1.5)
         ax_heat.set_xticklabels(numeric_cols, rotation=45, ha="right", fontsize=8)
         fig.colorbar(im, ax=ax_heat, fraction=0.03, pad=0.02, label="Normalized value (0-1 per column)")
+
+        if not args.show_all_labels and args.highlight_sample and args.highlight_sample in leaf_order:
+            idx = leaf_order.index(args.highlight_sample)
+            ax_heat.annotate("", xy=(len(numeric_cols) + 1.3, idx + 1), xytext=(len(numeric_cols) + 2.3, idx + 1),
+                              annotation_clip=False,
+                              arrowprops=dict(arrowstyle="->", color="firebrick", lw=1.5))
     ax_heat.set_yticks([])
-    ax_heat.set_title("Screening summary")
+    ax_heat.set_title("Screening summary\n(CARD/VFDB gene counts, antiSMASH BGC count)")
 
     legend_elems = [Patch(facecolor=c, label=g) for g, c in GROUP_COLORS.items()]
     fig.legend(handles=legend_elems, loc="outside upper right", title="Functional group", fontsize=9)
 
-    out_path = os.path.join(args.outdir, "global_tree_screening_heatmap.pdf")
+    suffix = "_full_labels" if args.show_all_labels else "_simplified"
+    out_path = os.path.join(args.outdir, f"global_tree_screening_heatmap{suffix}.pdf")
     fig.savefig(out_path)
     print(f"Combined figure saved: {out_path}")
 
-    tracks_path = os.path.join(args.outdir, "global_tracks_table.csv")
+    tracks_path = os.path.join(args.outdir, f"global_tracks_table{suffix}.csv")
     tracks.to_csv(tracks_path, encoding="utf-8-sig")
     print(f"Underlying track data saved: {tracks_path}")
 

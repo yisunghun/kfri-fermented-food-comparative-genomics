@@ -31,6 +31,9 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+DISP = {"Bacillus_group": "Bacillus-group", "Other_Environmental": "Other/Environmental"}
+
+
 LAB_GENERA = {
     "Lactiplantibacillus", "Levilactobacillus", "Latilactobacillus", "Lactobacillus",
     "Lactococcus", "Leuconostoc", "Weissella", "Pediococcus", "Enterococcus",
@@ -134,10 +137,9 @@ def main():
     u, p_burden = stats.mannwhitneyu(data_a, data_b, alternative="two-sided")
 
     fig, ax = plt.subplots(figsize=(6, 5))
-    ax.boxplot([data_a, data_b], tick_labels=[args.group_a, args.group_b])
+    ax.boxplot([data_a, data_b], tick_labels=[DISP.get(args.group_a, args.group_a), DISP.get(args.group_b, args.group_b)])
     ax.set_ylabel("Total BGC count per genome")
-    ax.set_title(f"antiSMASH BGC burden: {args.group_a} vs {args.group_b}\n"
-                 f"Mann-Whitney U p={p_burden:.2e}")
+    ax.set_title("antiSMASH BGC burden by functional group")
     fig.tight_layout()
     burden_path = os.path.join(args.outdir, "antismash_burden_boxplot.pdf")
     fig.savefig(burden_path)
@@ -180,12 +182,12 @@ def main():
         fig2, ax2 = plt.subplots(figsize=(max(8, len(means) * 0.5), 6))
         x = np.arange(len(means))
         width = 0.35
-        ax2.bar(x - width / 2, means[args.group_a], width, label=args.group_a)
-        ax2.bar(x + width / 2, means[args.group_b], width, label=args.group_b)
+        ax2.bar(x - width / 2, means[args.group_a], width, label=DISP.get(args.group_a, args.group_a))
+        ax2.bar(x + width / 2, means[args.group_b], width, label=DISP.get(args.group_b, args.group_b))
         ax2.set_xticks(x)
         ax2.set_xticklabels(means.index, rotation=45, ha="right", fontsize=8)
         ax2.set_ylabel("Mean BGC count per genome")
-        ax2.set_title(f"antiSMASH BGC product types: {args.group_a} vs {args.group_b}")
+        ax2.set_title("antiSMASH BGC product types by functional group")
         ax2.legend()
         fig2.tight_layout()
         bar_path = os.path.join(args.outdir, "antismash_product_barplot.pdf")

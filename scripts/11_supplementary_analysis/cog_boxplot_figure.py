@@ -25,26 +25,29 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 # effect size 기준 상위 10개 카테고리 (Supplementary Table S2 기준, |r| 내림차순)
-TOP10_CATEGORIES = ["F", "N", "T", "J", "Q", "L", "B", "C", "V", "G"]
+TOP10_CATEGORIES = ["F", "N", "J", "Q", "T", "U", "D", "S", "B", "L"]
 COG_LABELS = {
     "F": "F: Nucleotide\nmetabolism", "N": "N: Cell\nmotility",
     "T": "T: Signal\ntransduction", "J": "J: Translation/\nribosome",
     "Q": "Q: Secondary\nmetabolites", "L": "L: Replication/\nrepair",
     "B": "B: Chromatin\nstructure", "C": "C: Energy\nproduction",
     "V": "V: Defense\nmechanisms", "G": "G: Carbohydrate\nmetabolism",
+    "U": "U: Intracellular\ntrafficking/secretion", "D": "D: Cell cycle/\ndivision",
+    "S": "S: Function\nunknown",
 }
 
 
 def load_functional_group_map(fg_root):
+    # 공식 group_manifest.tsv 기준 (폴더 스캔 방식은 Bacillus_group에서 5개
+    # 누락되는 버그가 있었음 - 투고 전 자체 검증 과정에서 발견, 수정됨)
+    import pandas as pd
     mapping = {}
     for fg_name in os.listdir(fg_root):
-        fg_dir = os.path.join(fg_root, fg_name)
-        if not os.path.isdir(fg_dir):
+        manifest_path = os.path.join(fg_root, fg_name, "group_manifest.tsv")
+        if not os.path.isfile(manifest_path):
             continue
-        gff_dir = os.path.join(fg_dir, "genomes_gff")
-        search_dir = gff_dir if os.path.isdir(gff_dir) else fg_dir
-        for fpath in glob.glob(os.path.join(search_dir, "*.gff")):
-            sid = os.path.splitext(os.path.basename(fpath))[0]
+        mdf = pd.read_csv(manifest_path, sep="\t")
+        for sid in mdf["sample_id"]:
             mapping[sid] = fg_name
     return mapping
 

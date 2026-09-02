@@ -99,6 +99,10 @@ def main():
     dendro = dendrogram(Z, labels=ani.index.tolist(), orientation="left", ax=ax_tree,
                          leaf_font_size=7, no_labels=not args.show_all_labels)
     leaf_order = dendro["ivl"]
+    # scipy dendrogram(orientation="left")는 기본적으로 leaf_order[0]이 아래쪽에 오지만,
+    # 오른쪽 heatmap(imshow, origin="upper" 기본값)은 leaf_order[0]이 위쪽에 온다.
+    # 두 패널의 방향을 반드시 일치시켜야 같은 행이 같은 높이에서 정렬된다.
+    ax_tree.invert_yaxis()
     ax_tree.set_title("ANI-based hierarchical clustering (all 220 genomes;\nnot a phylogenetic tree)")
     ax_tree.set_xlabel("Distance (100 - ANI)")
 
@@ -175,7 +179,7 @@ def main():
                               annotation_clip=False,
                               arrowprops=dict(arrowstyle="->", color="firebrick", lw=1.5))
     ax_heat.set_yticks([])
-    ax_heat.set_title("Screening summary\n(CARD/VFDB gene counts, antiSMASH BGC count)")
+    ax_heat.set_title("Screening summary")
 
     legend_elems = [Patch(facecolor=c, label=g) for g, c in GROUP_COLORS.items()]
     fig.legend(handles=legend_elems, loc="outside upper right", title="Functional group", fontsize=9)

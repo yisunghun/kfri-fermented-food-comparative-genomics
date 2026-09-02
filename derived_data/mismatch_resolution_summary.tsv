@@ -1,0 +1,36 @@
+sample_id	originally_assigned_species	originally_assigned_ani	rank	candidate_species	candidate_ani	resolved	genus_changed
+HN00158226_AMT-912711	Leuconostoc mesenteroides	94.0783	1	Leuconostoc mesenteroides	94.0783	False	False
+HN00167634_C4-2	Bacillus cereus	91.6474	1	Bacillus paranthracis	95.9786	True	False
+HN00167634_CPP0006	Bacillus amyloliquefaciens	93.7942	1	Bacillus velezensis	93.9438	False	False
+HN00171167_F3062	Bacillus pumilus	88.7745	1	Bacillus aerophilus	98.2941	True	False
+HN00175486_F3127	Staphylococcus xylosus	93.3596	1	Staphylococcus xylosus	93.3596	False	False
+HN00175486_F3177	Staphylococcus cohnii	92.4203	1	Staphylococcus cohnii	92.4203	False	False
+HN00180670_CHKJ1127	Lactococcus lactis		1	Enterococcus lactis	97.997	True	True
+HN00180670_CHKJ1223-2	Enterococcus faecium	94.7578	1	Enterococcus lactis	98.8667	True	False
+HN00180670_MK1-12	Enterococcus faecium	94.2224	1	Enterococcus lactis	97.9832	True	False
+HN00195341_DK250105	Leuconostoc mesenteroides	94.0652	1	Leuconostoc mesenteroides	94.0652	False	False
+HN00196390_AMT-60411	Leuconostoc mesenteroides	94.1761	1	Leuconostoc mesenteroides	94.1761	False	False
+HN00196390_CHKJ1122	Lactococcus lactis		1	Enterococcus lactis	98.0061	True	True
+HN00204805_F1208	Priestia filamentosa	94.8431	1	Priestia filamentosa	94.8431	False	False
+HN00222446_Sea08-36	Paenibacillus chitinolyticus	93.7791	1	Paenibacillus chitinolyticus	93.7791	False	False
+HN00251139_BJS25001	Salimicrobium jeotgali	94.9844	1	Salimicrobium jeotgali	94.9844	False	False
+HN00251139_BJS25005	Octadecabacter arcticus	77.371	1	Octadecabacter arcticus	77.371	False	False
+HN00251139_BJS25013	Janibacter melonis	82.5365	1	Janibacter melonis	82.5365	False	False
+HN00251139_BJS25032	Serinicoccus profundi	78.9714	1	Janibacter melonis	82.5255	False	True
+HN00251139_BMX25005	Rossellomorea vietnamensis	82.9791	1	Rossellomorea vietnamensis	82.9791	False	False
+HN00251139_BTH25001	Enterococcus faecium	94.398	1	Enterococcus lactis	98.3393	True	False
+HN00251139_BTH25041	Kocuria palustris	92.4895	1	Kocuria palustris	92.4895	False	False
+HN00251139_KJS25018	Psychrobacter pacificensis	81.0381	1	Psychrobacter pacificensis	81.0381	False	False
+HN00251139_KJS25024	Halomonas elongata	81.0228	1	Halomonas elongata	81.0228	False	False
+HN00251139_KJS25025	Gordonia alkanivorans		1	Micrococcus luteus	77.8079	False	True
+HN00252244_BMX25010	Tetragenococcus osmophilus	90.1376	1	Tetragenococcus osmophilus	90.1376	False	False
+HN00280011_BGIL25058	Paenibacillus amylolyticus	92.0811	1	Paenibacillus amylolyticus	92.0811	False	False
+HN00280011_C3-36	Corynebacterium appendicis		1	Kocuria palustris	79.0585	False	True
+HN00280011_C4-50	Enterococcus faecium	80.2506	1	Enterococcus faecium	80.2506	False	False
+HN00280011_F1016	Psychrobacter alimentarius	83.3631	1	Psychrobacter alimentarius	83.3631	False	False
+HN00280011_F1169-1	Paenibacillus urinalis	94.3085	1	Paenibacillus urinalis	94.3085	False	False
+HN00280011_KCUT25019	Bacillus pumilus	94.3757	1	Bacillus pumilus	94.3757	False	False
+HN00280011_KK200214	Leuconostoc mesenteroides	79.3691	1	Leuconostoc mesenteroides	79.3691	False	False
+HN00281774_BMX25006	Oceanobacillus kapialis	81.019	1	Oceanobacillus kapialis	81.019	False	False
+HN00281774_C4-31	Glutamicibacter protophormiae	77.8389	1	Kocuria palustris	79.7472	False	True
+HN00281774_Sea9-10	Paenibacillus xylanilyticus	87.174	1	Paenibacillus xylanilyticus	87.174	False	False

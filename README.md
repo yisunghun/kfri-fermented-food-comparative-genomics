@@ -9,10 +9,7 @@ integrative tree/heatmap visualization.
 
 This repository accompanies:
 
-> Yi, S. Comparative Genomics of 220 Bacterial Isolates from Korean Fermented
-> Foods Reveals Divergent Functional Strategies Between Lactic Acid Bacteria
-> and Bacillus-Group Genera. *International Journal of Food Microbiology*
-> (submitted).
+> This repository accompanies a manuscript currently under peer review. Citation details will be added upon publication.
 
 For the full step-by-step protocol, environment setup, and a catalogue of
 issues encountered during development (with fixes), see
@@ -91,4 +88,4 @@ Code in this repository is released under the MIT License (see `LICENSE`).
 
 ## Contact
 
-Sunghun Yi, Korea Food Research Institute \u2014 sunghunyi@kfri.re.kr
+Contact details withheld for double-blind peer review; will be added upon publication.
